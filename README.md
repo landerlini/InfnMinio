@@ -86,6 +86,7 @@ It relies on:
  * the [requests package](https://pypi.org/project/requests/), released under Apache-2.0 license
 
 
+We acknowledge the support of the ICSC Foundation to the development of SQLamarr.
 
-
+![image](https://user-images.githubusercontent.com/44908794/227858127-47d2b66f-4f1b-4f34-b505-814748957123.png)
 
