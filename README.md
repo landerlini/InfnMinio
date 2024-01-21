@@ -28,6 +28,55 @@ From a Python script or notebook, just import the package and use the `from_toke
  * the endpoint of the minio instance (defaulting to `minio.cloud.infn.it`)
  * the STS-wire-managed token, usually stored in the user's home (defaults to `$HOME/.token`)
 
+```python
+from InfnMinio import InfnMinio as Minio
+minio = Minio.from_token("/home/.token")
+minio.list_buckets()
+```
+
+## Integration with arrow `S3FileSystem`
+
+[Apache Arrow](https://arrow.apache.org/) is a columnar in-memory data format designed to ease
+access to data from multiple languages. It provides direct access to Feather and Parquet files 
+stored in S3 object storage.
+
+Direct access to arrow data from S3 is much more efficient than copying the files locally, as only the columns (or the chunks) needed in the computation are actually transmitted and stored locally.
+
+To mount Minio authenticated with IAM as a `S3FileSystem` you can follow the recipe provided below.
+
+```python
+### Initialize the filesystem
+from InfnMinio import InfnMinio as Minio
+from pyarrow.fs import S3FileSystem
+
+s3 = S3FileSystem(
+    endpoint_override="minio.cloud.infn.it", 
+    **Minio.get_credentials("minio.cloud.infn.it", "/home/.token")
+)
+
+### Create a pandas dataframe to upload as an example
+import pandas as pd 
+df = pd.DataFrame(dict(
+    a=[1, 2, 3],
+    b=[5, 6, 7]
+))
+
+## Upload the file to your bucket
+import os
+bucket = os.environ.get("JUPYTERHUB_USER") ## Replace with the bucket you wish to use for test
+with s3.open_output_stream(f"{bucket}/test.parquet") as f:
+    df.to_parquet(f)
+
+## Retrieve the file from S3 importing it directly into pandas
+with s3.open_input_file(f"{bucket}/test.parquet") as f:
+    read_df = pd.read_parquet(f)
+
+## To enable memory mapping, enabling to download only the relevant parts of the file
+import pyarrow.parquet as pq
+df = pq.read_table(f"{bucket}/test.parquet", memory_map=True, filesystem=s3).to_pandas()
+
+```
+ 
 
 ## Licence and dependencies 
 This package is released under MIT license. 

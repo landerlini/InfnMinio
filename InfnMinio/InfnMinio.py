@@ -29,20 +29,14 @@ class InfnMinio(Minio):
             home = os.environ.get("HOME")
             token = Path(home) / ".token"
         
-        creds = InfnMinio._get_credentials(endpoint, token)
+        creds = InfnMinio.get_credentials(endpoint, token)
 
-        return Minio(
-            endpoint,
-            access_key=creds.get('AccessKeyId', ""),
-            secret_key=creds.get('SecretAccessKey', ""),
-            session_token=creds.get('SessionToken', ""),
-            secure=True,
-        )
+        return Minio(endpoint, **creds, secure=True)
 
 
     
     @staticmethod
-    def _get_credentials(endpoint: str, token: str) -> Dict[str, Any]:
+    def get_credentials(endpoint: str, token: str) -> Dict[str, Any]:
         """
         Retrieve the credentials through the AssumeRoleWithWebIdentity endpoint
         """
@@ -62,4 +56,8 @@ class InfnMinio(Minio):
             .get('Credentials', {})
         )
 
-        return creds
+        return dict(
+            access_key=creds.get('AccessKeyId', ""),
+            secret_key=creds.get('SecretAccessKey', ""),
+            session_token=creds.get('SessionToken', ""),
+        )
