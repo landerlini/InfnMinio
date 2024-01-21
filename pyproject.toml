@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "InfnMinio"
+authors = [
+    {name = "Lucio Anderlini", email = "Lucio.Anderlini@fi.infn.it"},
+]
+description = "A thin wrapper aound Minio SDK to ease web authentication on setups with running sts-wire service"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["minio", "sts-wire", "cloud", "storage", "s3"]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "requests",
+    "xmltodict",
+    "minio",
+]
+dynamic = ["version"]
+
+# [project.optional-dependencies]
+# pdf = ["ReportLab>=1.2", "RXP"]
+# rest = ["docutils>=0.3", "pack ==1.1, ==1.3"]
+
+# [project.scripts]
+# my-script = "my_package.module:function"
+
+[tool.setuptools.dynamic]
+version = {attr = "InfnMinio.VERSION"}
